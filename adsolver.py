@@ -9,7 +9,7 @@ class ADSolver:
     """
 
     def __init__(self, z_min=0, z_max=1, dz=1e-2, t_min=0, t_max=1, dt=1e-2,
-        w=1e-4, kappa=1e-1, source_func=None, initial_condition=None):
+        w=1e-4, kappa=1e-1, initial_condition=None):
         """
         """
 
@@ -20,9 +20,6 @@ class ADSolver:
         self.nlev, = self.z.shape
 
         self.time = torch.arange(t_min, t_max + 1, self.dt)
-
-        if source_func is None:
-            self.source_func = utils.make_source_func(self)
 
         if initial_condition is None:
             # self.initial_condition = lambda z: -2e-8 * (z - z_min) * (z - z_max)
@@ -47,7 +44,7 @@ class ADSolver:
         Q, self.R = torch.linalg.qr(B)
         self.QT = Q.T
 
-    def solve(self, nsteps=None):
+    def solve(self, nsteps=None, source_func=None):
         """
         Integrates the model for a given number of steps. Arguments are:
             n_steps : number of time steps to take in the integration.
@@ -58,13 +55,16 @@ class ADSolver:
 
         if nsteps is None:
             nsteps, = self.time.shape
+            
+        if source_func is None:
+            source_func = utils.make_source_func(self)
 
         u = torch.zeros((nsteps, self.nlev))
         u[0] = self.initial_condition(self.z)
 
         for n in range(nsteps - 1):
             
-            source = self.source_func(u[n])
+            source = source_func(u[n])
             source[0] = source[-1] = 0
 
             # RHS multiplied by QT on the left
