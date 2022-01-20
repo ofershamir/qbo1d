@@ -39,7 +39,7 @@ class ADSolver:
             D2[i, i] = -2
         D2 /= self.dz ** 2
 
-        self.D = self.dt * (w * D1 - kappa * D2)
+        self.D = 0.5 * self.dt * (w * D1 - kappa * D2)
 
         # LHS
         B = torch.eye(self.nlev) + self.D
@@ -62,22 +62,15 @@ class ADSolver:
         u = torch.zeros((nsteps, self.nlev))
         u[0] = self.initial_condition(self.z)
 
-        # a single forward euler step
-        source = self.source_func(u[0])
-        source[0] = source[-1] = 0
-
-        u[1] = (torch.matmul(torch.eye(self.nlev) - self.D, u[0]) -
-                self.dt * source)
-
-        for n in range(1, nsteps - 1):
+        for n in range(nsteps - 1):
             
             source = self.source_func(u[n])
             source[0] = source[-1] = 0
 
             # RHS multiplied by QT on the left
             b = torch.matmul(self.QT, (
-                torch.matmul(torch.eye(self.nlev) - self.D, u[n-1]) -
-                2 * self.dt * source
+                torch.matmul(torch.eye(self.nlev) - self.D, u[n]) -
+                self.dt * source
             )).reshape(-1, 1)
 
             u[n + 1] = torch.triangular_solve(b, self.R).solution.flatten()
