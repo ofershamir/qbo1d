@@ -8,8 +8,8 @@ class ADSolver:
     source term.
     """
 
-    def __init__(self, z_min=0, z_max=1, dz=1e-2, t_min=0, t_max=1, dt=1e-2,
-        w=1e-4, kappa=1e-1, initial_condition=None):
+    def __init__(self, z_min=17e3, z_max=35e3, dz=250, t_min=0,
+    t_max=360*12*86400, dt=86400, w=1e-5, kappa=3e-1, initial_condition=None):
         """
         """
 
@@ -22,12 +22,13 @@ class ADSolver:
         self.time = torch.arange(t_min, t_max + 1, self.dt)
 
         if initial_condition is None:
-            # self.initial_condition = lambda z: -2e-8 * (z - z_min) * (z - z_max)
-            self.initial_condition = lambda z: -14/81e6 * (z - z_min) * (z - z_max)
+            self.initial_condition = (lambda z:
+            -14/81e6 * (z - z_min) * (z - z_max))
 
         D1 = torch.zeros((self.nlev, self.nlev))
         for i in range(1, self.nlev -1):
-            D1[i, [i - 1, i + 1]] = 1
+            D1[i, i + 1] = 1
+            D1[i, i - 1] = -1
         D1 /= 2 * self.dz
 
         D2 = torch.zeros((self.nlev, self.nlev))
@@ -55,7 +56,7 @@ class ADSolver:
 
         if nsteps is None:
             nsteps, = self.time.shape
-            
+
         if source_func is None:
             source_func = utils.make_source_func(self)
 
@@ -63,7 +64,7 @@ class ADSolver:
         u[0] = self.initial_condition(self.z)
 
         for n in range(nsteps - 1):
-            
+
             source = source_func(u[n])
             source[0] = source[-1] = 0
 
