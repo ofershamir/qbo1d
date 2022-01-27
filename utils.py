@@ -29,6 +29,46 @@ def get_rho(z):
     return (P / (R * T)) * torch.exp(-(GRAV * z) / (R * T))
 
 
+def control_spectrum(sfe=3.7e-3, sfv=1e-8, cwe=32, cwv=225, corr=0.75):
+    """
+    """
+
+    ks = 2 * 2 * np.pi / 4e7 * torch.ones(20)
+    cs = torch.hstack([torch.arange(-100., 0., 10.),
+    torch.arange(10., 110., 10.)])
+
+    # desired mean and variances of the bivariate log-normal distribution
+    # (total wave flux [Pa], spectral width [m s^{-1}])
+    es = torch.tensor([sfe, cwe])
+    vs = torch.tensor([sfv, cwv])
+
+    # resulting means and variances of the corresponding normal distribution
+    mu = - 0.5 * torch.log(vs / es**4 + 1 / es**2)
+    variances = torch.log(es**2) - 2 * mu
+
+    sigma = torch.tensor([[variances[0], corr*(variances[0]*variances[1])**0.5],
+                        [corr*(variances[0]*variances[1])**0.5, variances[1]]])
+
+    # choosing seed for reproducibility
+    torch.manual_seed(21*9+8)
+
+    def As():
+        normal_dist = (
+        torch.distributions.multivariate_normal.MultivariateNormal(mu, sigma))
+        normal_samp = normal_dist.sample()
+        lognormal_samp = torch.exp(normal_samp)
+
+        sf = lognormal_samp[0]
+        cw = lognormal_samp[1]
+
+        amps = torch.sign(cs) * torch.exp(-np.log(2) * (cs/cw)**2)
+        amps *= sf / torch.sum(torch.abs(amps)) / 0.1006
+
+        return amps
+
+    return ks, cs, As
+
+
 def make_source_func(solver, As=None, cs=None, ks=None):
     """
     """
@@ -54,7 +94,7 @@ def make_source_func(solver, As=None, cs=None, ks=None):
         ks = lambda: ks_copy
 
     def source_func(u):
-        dFdz = torch.zeros(u.shape)
+        Ftot = torch.zeros(u.shape)
         As_now, cs_now, ks_now = As(), cs(), ks()
 
         for A, c, k in zip(As_now, cs_now, ks_now):
@@ -63,9 +103,9 @@ def make_source_func(solver, As=None, cs=None, ks=None):
                 torch.zeros(1),
                 torch.cumulative_trapezoid(g, dx=solver.dz)
             )))
-            dFdz -= F * g
+            Ftot += F
 
-        return dFdz * rho[0] / rho
+        return torch.matmul(solver.D1, Ftot) * rho[0] / rho
 
     return source_func
 
@@ -82,8 +122,8 @@ def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
         sos = signal.butter(9, 1 / 120, output='sos', fs=fs)
         u = signal.sosfilt(sos, u - u.mean())
 
-    amps = np.fft.fft(u)
-    freqs = np.fft.fftfreq(amps.shape[0])
+    amps = torch.fft.fft(u)
+    freqs = torch.fft.fftfreq(amps.shape[0])
 
     return abs(1 / freqs[abs(amps).argmax()]) / 30
 
