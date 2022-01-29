@@ -3,16 +3,28 @@ import numpy as np
 from scipy import signal
 import torch
 
-GRAV = 9.8
-P = 101325
-R = 287.04
-T = 204  # corresponding to the brunt-vaisala frequency below
-NBV = 2.16e-2  # brunt-vaisala frequency
-MU = 1e-6  # wave dissipation rate [s^{-1}]
+#: Physical constants
+GRAV = 9.8  #: Earth's gravitational acceleration [:math:`\mathrm{m \, s^{-2}}`]
+P = 101325  #: Reference pressure [Pa]
+R = 287.04  #: Gas const for dry air [:math:`\mathrm{J \, Kg^{-1} \, K^{-1}}`]
+T = 204  #: Reference temperature [K], corresponding to the Brunt-Vaisala frequency
+NBV = 2.16e-2  #: Brunt-Vaisala frequency [:math:`\mathrm{s^{-1}}`]
 
 
 def get_alpha(z):
-    """Calculates alpha as defined in (9) of Holton and Lindzen."""
+    """Calculates the waves dissipation profile, :math:`\\alpha(z)` as defined
+    in (9) of Holton and Lindzen.
+
+    Parameters
+    ----------
+    z : tensor
+        Height [m]
+
+    Returns
+    -------
+    tensor
+        :math:`\\alpha (z)` [:math:`\mathrm{s^{-1}}`]
+    """
 
     alpha = torch.zeros(z.shape)
     idx = (17e3 <= z) & (z <= 30e3)
@@ -24,13 +36,56 @@ def get_alpha(z):
 
 
 def get_rho(z):
-    """Calculates the density profile."""
+    """Calculates the density profile for an isothermal atmosphere.
+
+    Parameters
+    ----------
+    z : tensor
+        Height [m]
+
+    Returns
+    -------
+    tensor
+        :math:`\\rho (z)` [:math:`\mathrm{Kg \, m^{-3}}`]
+    """
 
     return (P / (R * T)) * torch.exp(-(GRAV * z) / (R * T))
 
 
 def control_spectrum(sfe=3.7e-3, sfv=1e-8, cwe=32, cwv=225, corr=0.75):
-    """
+    """Returns the "control" source spectrum to be passed on to the
+    make_source_func utility.
+
+    The control source spectrum consists of 20 waves with equal wavenumbers 2
+    and equally spaced phase speeds in :math:`[-100, -10]`, :math:`[10, 100]`.
+    The amplitudes depend on the phase speeds as in (17) of AD99 with
+    stochastically varying magnitude (total flux at source level) and spectrum
+    width sampled from a 5 parameter distribution (for the means, variances
+    , and correlation). Here, the magnitude and width are first drawn from a
+    bivariate normal distribution with the specified correlation and then mapped
+    to bivariate log-normal distribution with the specified means and variances.
+
+    Parameters
+    ----------
+    sfe : float, optional
+        Total source flux mean, by default 3.7e-3
+    sfv : float, optional
+        Total source flux variance, by default 1e-8
+    cwe : float, optional
+        Spectrum width mean, by default 32
+    cwv : float, optional
+        Spectrum width variance, by default 225
+    corr : float, optional
+        Correlation in the underlying normal distribution, by default 0.75
+
+    Returns
+    -------
+    tensor
+        Wavenumbers[:math:`\mathrm{m^{-1}}`]
+    tensor
+        Phase speeds [:math:`\mathrm{m \, s^{-1}}`]
+    function
+        Wave amplitudes [Pa]
     """
 
     ks = 2 * 2 * np.pi / 4e7 * torch.ones(20)
@@ -61,7 +116,7 @@ def control_spectrum(sfe=3.7e-3, sfv=1e-8, cwe=32, cwv=225, corr=0.75):
         sf = lognormal_samp[0]
         cw = lognormal_samp[1]
 
-        amps = torch.sign(cs) * torch.exp(-np.log(2) * (cs/cw)**2)
+        amps = torch.sign(cs) * torch.exp(-np.log(2) * (cs / cw)**2)
         amps *= sf / torch.sum(torch.abs(amps)) / 0.1006
 
         return amps
@@ -70,7 +125,24 @@ def control_spectrum(sfe=3.7e-3, sfv=1e-8, cwe=32, cwv=225, corr=0.75):
 
 
 def make_source_func(solver, As=None, cs=None, ks=None):
-    """
+    """A wrraper for setting up the source function. At present the solver class
+    assumes that the source depend depend explicitly only on the unknown u.
+
+    Parameters
+    ----------
+    solver : ADSolver
+        A solver instance holding the grid and differentiation matrix
+    As : tensor/function, optional
+        Wave amplitudes [Pa], by default None
+    cs : tensor/function, optional
+        Phase speeds [:math:`\mathrm{m \, s^{-1}}`], by default None
+    ks : tensor/function, optional
+        Wavenumbers [:math:`\mathrm{m^{-1}}`], by default None
+
+    Returns
+    -------
+    function
+        Source terms as a function of u
     """
 
     rho = get_rho(solver.z)
@@ -111,8 +183,28 @@ def make_source_func(solver, As=None, cs=None, ks=None):
 
 
 def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
-    """
-    Returns the estimated period in months.
+    """Returns the estimated QBO period in months using the dominant (maximal)
+    Fourier mode.
+
+    Parameters
+    ----------
+    time : tensor
+        Time [:math:`\mathrm{s}`]
+    z : tensor
+        Height [m]
+    u : tensor
+        Zonal wind [:math:`\mathrm{m \, s^{-1}}`]
+    height : float, optional
+        Height for estimating the period [:math:`\mathrm{m}`], by default 25e3
+    spinup : float, optional
+        Spinup time to exclude from the estimation [:math:`\mathrm{s}`], by default 0
+    bw_filter : bool, optional
+        Flag for invoking a Butterworth filter, by default False
+
+    Returns
+    -------
+    float
+        QBO period [months]
     """
 
     fs = 86400 / (time[1] - time[0]).item()
@@ -120,7 +212,7 @@ def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
 
     if bw_filter:
         sos = signal.butter(9, 1 / 120, output='sos', fs=fs)
-        u = signal.sosfilt(sos, u - u.mean())
+        u = torch.tensor(signal.sosfilt(sos, u - u.mean()))
 
     amps = torch.fft.fft(u)
     freqs = torch.fft.fftfreq(amps.shape[0])
@@ -129,8 +221,28 @@ def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
 
 
 def estimate_amplitude(time, z, u, height=25e3, spinup=0, bw_filter=False):
-    """
-    Returns the estimated amplitude in m s^{-1}.
+    """Returns the estimated QBO amplitude in m s^{-1} using the standard
+    deviation.
+
+    Parameters
+    ----------
+    time : tensor
+        Time [:math:`\mathrm{s}`]
+    z : tensor
+        Height [m]
+    u : tensor
+        Zonal wind [:math:`\mathrm{m \, s^{-1}}`]
+    height : float, optional
+        Height for estimating the period [:math:`\mathrm{m}`], by default 25e3
+    spinup : float, optional
+        Spinup time to exclude from the estimation [:math:`\mathrm{s}`], by default 0
+    bw_filter : bool, optional
+        Flag for invoking a Butterworth filter, by default False
+
+    Returns
+    -------
+    float
+        QBO amplitude [:math:`\mathrm{m \, s^{-1}}`]
     """
 
     fs = 86400 / (time[1] - time[0]).item()
