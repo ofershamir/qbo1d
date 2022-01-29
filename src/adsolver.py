@@ -1,17 +1,44 @@
 import torch
-
 import utils
 
+
 class ADSolver:
-    """
-    Class to solve a one-dimensional advection-diffusion equation with a
+    """Class to solve a one-dimensional advection-diffusion equation with a
     source term.
+
+    Parameters
+    ----------
+    z_min : float, optional
+        Bottom boundary [m], by default 17e3
+    z_max : float, optional
+        Top boundary [m], by default 35e3
+    dz : int, optional
+        Vertical grid spacing [m], by default 250
+    t_min : float, optional
+        Initial time [s], by default 0
+    t_max : float, optional
+        Final time [s], by default 360*12*86400
+    dt : float, optional
+        Timestep [s], by default 86400
+    w : float, optional
+        Constant vertical advection [:math:`\mathrm{m \, s^{-1}}`], by default 1e-5
+    kappa : float, optional
+        Constant diffusivity [:math:`\mathrm{m^{2} \, s^{-1}}`], by default 3e-1
+    initial_condition : tensor, optional
+        The unknown profile at t_min, by default None
+
+    Attributes
+    ----------
+    z : tensor
+        Vertical grid [m]
+    time : tensor
+        Temporal grid [s]
+    D1 : tensor
+        Differentiation matrix for centered (second-order accurate) first-order derivative
     """
 
     def __init__(self, z_min=17e3, z_max=35e3, dz=250, t_min=0,
     t_max=360*12*86400, dt=86400, w=1e-5, kappa=3e-1, initial_condition=None):
-        """
-        """
 
         self.z_min = z_min
         self.z_max = z_max
@@ -53,12 +80,21 @@ class ADSolver:
         self.QT = Q.T
 
     def solve(self, nsteps=None, source_func=None):
-        """
-        Integrates the model for a given number of steps. Arguments are:
-            n_steps : number of time steps to take in the integration.
+        """Integrates the model for a given number of steps starting from the
+        initial conditions.
 
-        Returns an array of shape (n_steps, m), where m is the number of
-        levels, whose entries are the zonal wind profiles at each time.
+        Parameters
+        ----------
+        nsteps : int, optional
+            number of time steps to take in the integration, by default None
+        source_func : function, optional
+            The source term as an explicit function of the unknown only, by default None
+
+        Returns
+        -------
+        tensor
+            Tensor of shape (n_steps, m), where m is the number of levels, whose
+            entries are the zonal wind profiles at each time.
         """
 
         if nsteps is None:

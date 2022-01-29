@@ -1,0 +1,467 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Reference &#8212; qbo1d  documentation</title>
+    
+    <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  
+    
+    <link rel="stylesheet"
+      href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+    
+      
+  
+    
+    <link rel="stylesheet" href="_static/styles/pydata-sphinx-theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Model setup" href="model-setup.html" />
+    <link rel="prev" title="Numerical scheme" href="numerical-scheme.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="index.html">
+<p class="title">qbo1d</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="numerical-scheme.html">
+  Numerical scheme
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
+  Code Reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="model-setup.html">
+  Model setup
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="scenarios.html">
+  Scenarios
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="code-reference">
+<h1>Code Reference<a class="headerlink" href="#code-reference" title="Permalink to this headline">¶</a></h1>
+<p>For the most part, the notations in the code, and in the project in general, follow the notations in Holton and Lindzen (1972), with the exception of using <span class="math notranslate nohighlight">\(\kappa\)</span> to denote the diffusion coefficient and <span class="math notranslate nohighlight">\(NBV\)</span> to denote the Brunt-Vaisala frequency.</p>
+<dl class="py class">
+<dt id="adsolver.ADSolver">
+<em class="property">class </em><code class="sig-prename descclassname">adsolver.</code><code class="sig-name descname">ADSolver</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z_min</span><span class="o">=</span><span class="default_value">17000.0</span></em>, <em class="sig-param"><span class="n">z_max</span><span class="o">=</span><span class="default_value">35000.0</span></em>, <em class="sig-param"><span class="n">dz</span><span class="o">=</span><span class="default_value">250</span></em>, <em class="sig-param"><span class="n">t_min</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">t_max</span><span class="o">=</span><span class="default_value">373248000</span></em>, <em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">86400</span></em>, <em class="sig-param"><span class="n">w</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">0.3</span></em>, <em class="sig-param"><span class="n">initial_condition</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#adsolver.ADSolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to solve a one-dimensional advection-diffusion equation with a
+source term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z_min</strong> (<em>float</em><em>, </em><em>optional</em>) – Bottom boundary [m], by default 17e3</p></li>
+<li><p><strong>z_max</strong> (<em>float</em><em>, </em><em>optional</em>) – Top boundary [m], by default 35e3</p></li>
+<li><p><strong>dz</strong> (<em>int</em><em>, </em><em>optional</em>) – Vertical grid spacing [m], by default 250</p></li>
+<li><p><strong>t_min</strong> (<em>float</em><em>, </em><em>optional</em>) – Initial time [s], by default 0</p></li>
+<li><p><strong>t_max</strong> (<em>float</em><em>, </em><em>optional</em>) – Final time [s], by default 360*12*86400</p></li>
+<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>optional</em>) – Timestep [s], by default 86400</p></li>
+<li><p><strong>w</strong> (<em>float</em><em>, </em><em>optional</em>) – Constant vertical advection [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-1}}\)</span>], by default 1e-5</p></li>
+<li><p><strong>kappa</strong> (<em>float</em><em>, </em><em>optional</em>) – Constant diffusivity [<span class="math notranslate nohighlight">\(\mathrm{m^{2} \, s^{-1}}\)</span>], by default 3e-1</p></li>
+<li><p><strong>initial_condition</strong> (<em>tensor</em><em>, </em><em>optional</em>) – The unknown profile at t_min, by default None</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="adsolver.ADSolver.z">
+<code class="sig-name descname">z</code><a class="headerlink" href="#adsolver.ADSolver.z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vertical grid [m]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="adsolver.ADSolver.time">
+<code class="sig-name descname">time</code><a class="headerlink" href="#adsolver.ADSolver.time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Temporal grid [s]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="adsolver.ADSolver.D1">
+<code class="sig-name descname">D1</code><a class="headerlink" href="#adsolver.ADSolver.D1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Differentiation matrix for centered (second-order accurate) first-order derivative</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="adsolver.ADSolver.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nsteps</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">source_func</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#adsolver.ADSolver.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrates the model for a given number of steps starting from the
+initial conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nsteps</strong> (<em>int</em><em>, </em><em>optional</em>) – number of time steps to take in the integration, by default None</p></li>
+<li><p><strong>source_func</strong> (<em>function</em><em>, </em><em>optional</em>) – The source term as an explicit function of the unknown only, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tensor of shape (n_steps, m), where m is the number of levels, whose
+entries are the zonal wind profiles at each time.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-utils"></span><dl class="py data">
+<dt id="utils.GRAV">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">GRAV</code><em class="property"> = 9.8</em><a class="headerlink" href="#utils.GRAV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Earth’s gravitational acceleration [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-2}}\)</span>]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="utils.NBV">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">NBV</code><em class="property"> = 0.0216</em><a class="headerlink" href="#utils.NBV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Brunt-Vaisala frequency [<span class="math notranslate nohighlight">\(\mathrm{s^{-1}}\)</span>]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="utils.P">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">P</code><em class="property"> = 101325</em><a class="headerlink" href="#utils.P" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference pressure [Pa]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="utils.R">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">R</code><em class="property"> = 287.04</em><a class="headerlink" href="#utils.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gas const for dry air [<span class="math notranslate nohighlight">\(\mathrm{J \, Kg^{-1} \, K^{-1}}\)</span>]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="utils.T">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">T</code><em class="property"> = 204</em><a class="headerlink" href="#utils.T" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference temperature [K], corresponding to the Brunt-Vaisala frequency</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utils.control_spectrum">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">control_spectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sfe</span><span class="o">=</span><span class="default_value">0.0037</span></em>, <em class="sig-param"><span class="n">sfv</span><span class="o">=</span><span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">cwe</span><span class="o">=</span><span class="default_value">32</span></em>, <em class="sig-param"><span class="n">cwv</span><span class="o">=</span><span class="default_value">225</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">0.75</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.control_spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the “control” source spectrum to be passed on to the
+make_source_func utility.</p>
+<p>The control source spectrum consists of 20 waves with equal wavenumbers 2
+and equally spaced phase speeds in <span class="math notranslate nohighlight">\([-100, -10]\)</span>, <span class="math notranslate nohighlight">\([10, 100]\)</span>.
+The amplitudes depend on the phase speeds as in (17) of AD99 with
+stochastically varying magnitude (total flux at source level) and spectrum
+width sampled from a 5 parameter distribution (for the means, variances
+, and correlation). Here, the magnitude and width are first drawn from a
+bivariate normal distribution with the specified correlation and then mapped
+to bivariate log-normal distribution with the specified means and variances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sfe</strong> (<em>float</em><em>, </em><em>optional</em>) – Total source flux mean, by default 3.7e-3</p></li>
+<li><p><strong>sfv</strong> (<em>float</em><em>, </em><em>optional</em>) – Total source flux variance, by default 1e-8</p></li>
+<li><p><strong>cwe</strong> (<em>float</em><em>, </em><em>optional</em>) – Spectrum width mean, by default 32</p></li>
+<li><p><strong>cwv</strong> (<em>float</em><em>, </em><em>optional</em>) – Spectrum width variance, by default 225</p></li>
+<li><p><strong>corr</strong> (<em>float</em><em>, </em><em>optional</em>) – Correlation in the underlying normal distribution, by default 0.75</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>tensor</em> – Wavenumbers[<span class="math notranslate nohighlight">\(\mathrm{m^{-1}}\)</span>]</p></li>
+<li><p><em>tensor</em> – Phase speeds [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-1}}\)</span>]</p></li>
+<li><p><em>function</em> – Wave amplitudes [Pa]</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utils.estimate_amplitude">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">estimate_amplitude</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time</span></em>, <em class="sig-param"><span class="n">z</span></em>, <em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">height</span><span class="o">=</span><span class="default_value">25000.0</span></em>, <em class="sig-param"><span class="n">spinup</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">bw_filter</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.estimate_amplitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the estimated QBO amplitude in m s^{-1} using the standard
+deviation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>tensor</em>) – Time [<span class="math notranslate nohighlight">\(\mathrm{s}\)</span>]</p></li>
+<li><p><strong>z</strong> (<em>tensor</em>) – Height [m]</p></li>
+<li><p><strong>u</strong> (<em>tensor</em>) – Zonal wind [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-1}}\)</span>]</p></li>
+<li><p><strong>height</strong> (<em>float</em><em>, </em><em>optional</em>) – Height for estimating the period [<span class="math notranslate nohighlight">\(\mathrm{m}\)</span>], by default 25e3</p></li>
+<li><p><strong>spinup</strong> (<em>float</em><em>, </em><em>optional</em>) – Spinup time to exclude from the estimation [<span class="math notranslate nohighlight">\(\mathrm{s}\)</span>], by default 0</p></li>
+<li><p><strong>bw_filter</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag for invoking a Butterworth filter, by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>QBO amplitude [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-1}}\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utils.estimate_period">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">estimate_period</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time</span></em>, <em class="sig-param"><span class="n">z</span></em>, <em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">height</span><span class="o">=</span><span class="default_value">25000.0</span></em>, <em class="sig-param"><span class="n">spinup</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">bw_filter</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.estimate_period" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the estimated QBO period in months using the dominant (maximal)
+Fourier mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>tensor</em>) – Time [<span class="math notranslate nohighlight">\(\mathrm{s}\)</span>]</p></li>
+<li><p><strong>z</strong> (<em>tensor</em>) – Height [m]</p></li>
+<li><p><strong>u</strong> (<em>tensor</em>) – Zonal wind [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-1}}\)</span>]</p></li>
+<li><p><strong>height</strong> (<em>float</em><em>, </em><em>optional</em>) – Height for estimating the period [<span class="math notranslate nohighlight">\(\mathrm{m}\)</span>], by default 25e3</p></li>
+<li><p><strong>spinup</strong> (<em>float</em><em>, </em><em>optional</em>) – Spinup time to exclude from the estimation [<span class="math notranslate nohighlight">\(\mathrm{s}\)</span>], by default 0</p></li>
+<li><p><strong>bw_filter</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag for invoking a Butterworth filter, by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>QBO period [months]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utils.get_alpha">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_alpha</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the waves dissipation profile, <span class="math notranslate nohighlight">\(\alpha(z)\)</span> as defined
+in (9) of Holton and Lindzen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>z</strong> (<em>tensor</em>) – Height [m]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(\alpha (z)\)</span> [<span class="math notranslate nohighlight">\(\mathrm{s^{-1}}\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utils.get_rho">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_rho</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the density profile for an isothermal atmosphere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>z</strong> (<em>tensor</em>) – Height [m]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(\rho (z)\)</span> [<span class="math notranslate nohighlight">\(\mathrm{Kg \, m^{-3}}\)</span>]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utils.make_source_func">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">make_source_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">solver</span></em>, <em class="sig-param"><span class="n">As</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ks</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.make_source_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrraper for setting up the source function. At present the solver class
+assumes that the source depend depend explicitly only on the unknown u.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solver</strong> (<a class="reference internal" href="#adsolver.ADSolver" title="adsolver.ADSolver"><em>ADSolver</em></a>) – A solver instance holding the grid and differentiation matrix</p></li>
+<li><p><strong>As</strong> (<em>tensor/function</em><em>, </em><em>optional</em>) – Wave amplitudes [Pa], by default None</p></li>
+<li><p><strong>cs</strong> (<em>tensor/function</em><em>, </em><em>optional</em>) – Phase speeds [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-1}}\)</span>], by default None</p></li>
+<li><p><strong>ks</strong> (<em>tensor/function</em><em>, </em><em>optional</em>) – Wavenumbers [<span class="math notranslate nohighlight">\(\mathrm{m^{-1}}\)</span>], by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Source terms as a function of u</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>function</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="numerical-scheme.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Numerical scheme</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="model-setup.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model setup</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+    <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, ofer.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
