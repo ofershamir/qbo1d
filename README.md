@@ -37,8 +37,8 @@ Please refer to the [Documentation](https://DataWaveProject.github.io/qbo1d/).
 ## Working example
 A working example is provided in the `example.ipynb` notebook. Here is a figure.
  The forcing in the figure consists of two waves of equal and opposite
- amplitudes $\pm 4$ mPa, opposite phase speeds $\pm 30$ m s$^{-1}$, and equal
- wavenumbers 1. The vertical advection in this case equals $3 \cdot 10^{-5}$
+ amplitudes $\pm 6$ mPa, opposite phase speeds $\pm 32$ m s$^{-1}$, and equal
+ wavenumbers 1. The vertical advection in this case equals $1 \cdot 10^{-5}$
  m s$^{-1}$. Note, the figure shows the **last 12 years of a 96 year** long
  integration. The amplitudes and period estimates were estimated after 12 years
  of spinup.
