@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from scipy import signal
 import torch
+import analytic2
 
 #: Physical constants
 GRAV = 9.8  #: Earth's gravitational acceleration [:math:`\mathrm{m \, s^{-2}}`]
@@ -124,7 +125,7 @@ def control_spectrum(sfe=3.7e-3, sfv=1e-8, cwe=32, cwv=225, corr=0.75):
     return ks, cs, As
 
 
-def make_source_func(solver, As=None, cs=None, ks=None):
+def make_source_func(solver, As=None, cs=None, ks=None, Gsa=0):
     """A wrraper for setting up the source function. At present the solver class
     assumes that the source depend depend explicitly only on the unknown u.
 
@@ -138,11 +139,13 @@ def make_source_func(solver, As=None, cs=None, ks=None):
         Phase speeds [:math:`\mathrm{m \, s^{-1}}`], by default None
     ks : tensor/function, optional
         Wavenumbers [:math:`\mathrm{m^{-1}}`], by default None
+    Gsa : float, optional
+        Amplitude of semi-annual oscillation [:math:`\mathrm{m \, s^{-2}}`], by default 0
 
     Returns
     -------
     function
-        Source terms as a function of u
+        Source term as a function of u
     """
 
     rho = get_rho(solver.z)
@@ -165,21 +168,44 @@ def make_source_func(solver, As=None, cs=None, ks=None):
         ks_copy = ks
         ks = lambda: ks_copy
 
+    g_func = lambda c, k, u : NBV * alpha / (k * ((c - u) ** 2))
+    F_func = lambda A, g : (A * torch.exp(-torch.hstack((
+        torch.zeros(1),
+        torch.cumulative_trapezoid(g, dx=solver.dz)
+        ))))
+    G_func = lambda z, t : (Gsa * 2 * (z - 28e3) * 1e-3 * 2 * np.pi / 180 /
+        86400 * torch.sin(2 * np.pi / 180 / 86400 * t))
+
     def source_func(u):
         Ftot = torch.zeros(u.shape)
         As_now, cs_now, ks_now = As(), cs(), ks()
 
         for A, c, k in zip(As_now, cs_now, ks_now):
-            g = NBV * alpha / (k * ((c - u) ** 2))
-            F = A * torch.exp(-torch.hstack((
-                torch.zeros(1),
-                torch.cumulative_trapezoid(g, dx=solver.dz)
-            )))
+            g = g_func(c, k, u)
+            F = F_func(A, g)
             Ftot += F
 
-        return torch.matmul(solver.D1, Ftot) * rho[0] / rho
+        G = torch.zeros(solver.z.shape)
+        idx = (28e3 <= solver.z) & (solver.z <= 35e3)
+        G[idx] = G_func(solver.z[idx], solver.current_time)
 
-    return source_func
+        return torch.matmul(solver.D1, Ftot) * rho[0] / rho - G
+
+    return source_func, g_func, F_func
+
+
+def load_model(solver, ModelClass=None, path_to_state_dict=None):
+
+    if ModelClass is None:
+        ModelClass = analytic2.WaveSpectrum
+
+    if path_to_state_dict is None:
+        path_to_state_dict = '../models/analytic2.pth'
+
+    model = ModelClass(solver)
+    model.load_state_dict(torch.load(path_to_state_dict))
+    model.eval()
+    return model
 
 
 def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):

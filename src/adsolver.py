@@ -34,7 +34,9 @@ class ADSolver:
     time : tensor
         Temporal grid [s]
     D1 : tensor
-        Differentiation matrix for centered (second-order accurate) first-order derivative
+        Differentiation matrix for centered (second-order accurate) first derivative
+    D2 : tensor
+        Differentiation matrix for centered (second-order accurate) second derivative
     """
 
     def __init__(self, z_min=17e3, z_max=35e3, dz=250, t_min=0,
@@ -49,10 +51,11 @@ class ADSolver:
         self.w = w
         self.kappa = kappa
 
-        self.z = torch.arange(z_min, z_max + 1, self.dz)
+        self.z = torch.arange(z_min, z_max + self.dz, self.dz)
         self.nlev, = self.z.shape
 
-        self.time = torch.arange(t_min, t_max + 1, self.dt)
+        self.time = torch.arange(t_min, t_max + self.dt, self.dt)
+        self.current_time = torch.tensor([t_min])
 
         self.initial_condition = initial_condition
         if self.initial_condition is None:
@@ -65,13 +68,16 @@ class ADSolver:
             self.D1[i, i - 1] = -1
         self.D1 /= 2 * self.dz
 
-        D2 = torch.zeros((self.nlev, self.nlev))
+        self.D2 = torch.zeros((self.nlev, self.nlev))
         for i in range(1, self.nlev - 1):
-            D2[i, [i - 1, i + 1]] = 1
-            D2[i, i] = -2
-        D2 /= self.dz ** 2
+            self.D2[i, [i - 1, i + 1]] = 1
+            self.D2[i, i] = -2
+        # for zero flux (Neumann) BC at the top uncomment following two lines
+        # self.D2[self.nlev - 1, self.nlev - 2] = 2
+        # self.D2[self.nlev - 1, self.nlev - 1] = -2
+        self.D2 /= self.dz ** 2
 
-        self.D = self.dt * (w * self.D1 - kappa * D2)
+        self.D = self.dt * (w * self.D1 - kappa * self.D2)
 
         # LHS
         B = torch.eye(self.nlev) + self.D
@@ -101,7 +107,8 @@ class ADSolver:
             nsteps, = self.time.shape
 
         if source_func is None:
-            source_func = utils.make_source_func(self)
+            # source_func, _, _ = utils.make_source_func(self)
+            source_func = utils.load_model(self)
 
         u = torch.zeros((nsteps, self.nlev))
         u[0] = self.initial_condition(self.z)
@@ -113,6 +120,7 @@ class ADSolver:
 
         for n in range(1, nsteps - 2):
 
+            self.current_time += self.dt
             source = source_func(u[n])
 
             # RHS multiplied by QT on the left
