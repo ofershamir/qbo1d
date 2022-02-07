@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from scipy import signal
 import torch
+import analytic2
 
 #: Physical constants
 GRAV = 9.8  #: Earth's gravitational acceleration [:math:`\mathrm{m \, s^{-2}}`]
@@ -191,6 +192,20 @@ def make_source_func(solver, As=None, cs=None, ks=None, Gsa=0):
         return torch.matmul(solver.D1, Ftot) * rho[0] / rho - G
 
     return source_func, g_func, F_func
+
+
+def load_model(solver, ModelClass=None, path_to_state_dict=None):
+
+    if ModelClass is None:
+        ModelClass = analytic2.WaveSpectrum
+
+    if path_to_state_dict is None:
+        path_to_state_dict = '../models/analytic2.pth'
+
+    model = ModelClass(solver)
+    model.load_state_dict(torch.load(path_to_state_dict))
+    model.eval()
+    return model
 
 
 def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):

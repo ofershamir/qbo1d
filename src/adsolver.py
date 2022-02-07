@@ -51,10 +51,10 @@ class ADSolver:
         self.w = w
         self.kappa = kappa
 
-        self.z = torch.arange(z_min, z_max + 1, self.dz)
+        self.z = torch.arange(z_min, z_max + self.dz, self.dz)
         self.nlev, = self.z.shape
 
-        self.time = torch.arange(t_min, t_max + 1, self.dt)
+        self.time = torch.arange(t_min, t_max + self.dt, self.dt)
         self.current_time = torch.tensor([t_min])
 
         self.initial_condition = initial_condition
@@ -107,7 +107,8 @@ class ADSolver:
             nsteps, = self.time.shape
 
         if source_func is None:
-            source_func, _, _ = utils.make_source_func(self)
+            # source_func, _, _ = utils.make_source_func(self)
+            source_func = utils.load_model(self)
 
         u = torch.zeros((nsteps, self.nlev))
         u[0] = self.initial_condition(self.z)
