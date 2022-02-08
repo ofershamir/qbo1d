@@ -1,5 +1,6 @@
 import torch
-import utils
+
+from . import utils
 
 
 class ADSolver:

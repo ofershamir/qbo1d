@@ -1,10 +1,11 @@
 from numpy import pi as PI
 import torch
-import utils
+
+from . import utils
 
 class WaveSpectrum(torch.nn.Module):
     def __init__(self, solver, As=None, cs=None, ks=None, Gsa=0):
-        super(WaveSpectrum, self).__init__()
+        super().__init__()
 
         self.train(False)
 
@@ -12,11 +13,15 @@ class WaveSpectrum(torch.nn.Module):
         self.alpha = utils.get_alpha(solver.z)
 
         if As is None:
-            self.As = torch.tensor([6e-4, -6e-4]) / self.rho[0]
+            As = torch.tensor([6e-4, -6e-4]) / self.rho[0]
         if cs is None:
-            self.cs = torch.tensor([32, -32])
+            cs = torch.tensor([32, -32])
         if ks is None:
-            self.ks = (1 * 2 * PI / 4e7) * torch.ones(2)
+            ks = (1 * 2 * PI / 4e7) * torch.ones(2)
+            
+        self.As = As
+        self.cs = cs
+        self.ks = ks
 
         self.z = solver.z
         self.current_time = solver.current_time
