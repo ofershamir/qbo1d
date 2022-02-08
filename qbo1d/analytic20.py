@@ -1,6 +1,7 @@
 import numpy as np
 import torch
-import utils
+
+from . import utils
 
 class WaveSpectrum(torch.nn.Module):
     def __init__(self, solver,
