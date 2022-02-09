@@ -2,14 +2,14 @@
 A PyTorch 1D QBO model.
 
 The essential components of the code include:
-- A class for solving a forced advection-diffusion equation in one space
- dimension, located in `./src/adsolver.py`.
-- A wrapper for setting up the source term `make_source_func`, located in
- `./src/utils`, which can be used to set up the analytic source term or load an
- emulator of the source terms (essentially an PyTorch model).
+- `adsolver.ADSolver`: a class for solving a forced advection-diffusion equation in one
+ space dimension.
+- `utils.load_model`: a utility for loading a Pytorch model, defined by a
+ `ModelClass` and a `state_dict`, and containing the source term.
 
 **Features**:
 - Can be forced using a spectrum of waves.
+- Can use backpropagation to optimize model parameters to a desired outcome.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

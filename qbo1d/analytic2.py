@@ -4,6 +4,31 @@ import torch
 from . import utils
 
 class WaveSpectrum(torch.nn.Module):
+    """A ModelClass for setting up the analytic 2 wave source spectrum.
+
+    Parameters
+    ----------
+    solver : ADSolver
+        A solver instance holding the grid and differentiation matrix
+    As : tensor/function, optional
+        Wave amplitudes [Pa], by default None
+    cs : tensor/function, optional
+        Phase speeds [:math:`\mathrm{m \, s^{-1}}`], by default None
+    ks : tensor/function, optional
+        Wavenumbers [:math:`\mathrm{m^{-1}}`], by default None
+    Gsa : float, optional
+        Amplitude of semi-annual oscillation [:math:`\mathrm{m \, s^{-2}}`], by default 0
+
+    Attributes
+    ----------
+    g_func : func
+        An interface for keeping track of the function g in the analytic forcing
+    F_func : func
+        An interface for keeping track of the function F in the analytic forcing
+    G_func : func
+        An interface for keeping track of the semi-annual oscillation
+    """
+
     def __init__(self, solver, As=None, cs=None, ks=None, Gsa=0):
         super().__init__()
 
@@ -18,7 +43,7 @@ class WaveSpectrum(torch.nn.Module):
             cs = torch.tensor([32, -32])
         if ks is None:
             ks = (1 * 2 * PI / 4e7) * torch.ones(2)
-            
+
         self.As = As
         self.cs = cs
         self.ks = ks
@@ -39,6 +64,20 @@ class WaveSpectrum(torch.nn.Module):
         180 / 86400 * torch.sin(2 * PI / 180 / 86400 * t))
 
     def forward(self, u):
+        """An interface for calculating the source term as a function of u. By
+        default, torch.nn.Module uses the forward method.
+
+        Parameters
+        ----------
+        u : tensor
+            Zonal wind profile
+
+        Returns
+        -------
+        tensor
+            Source term as a function of u
+        """
+
         Ftot = torch.zeros(u.shape)
         for A, c, k in zip(self.As, self.cs, self.ks):
             g = self.g_func(c, k, u)
