@@ -2,15 +2,15 @@
 Numerical scheme
 ================
 
-The code solves the forced advection-diffusion equation in one space dimension
-with vanishing Dirichlet boundary conditions (B.C. are hard-coded). The equation
-is discretized in time using is a semi-implicit scheme, combining an implicit
-scheme for the advection/diffusion terms (centered in both time and space) and a
-(explicit) leapfrog scheme for the source term.
+The code solves the forced advection-diffusion equation in one space dimension.
+The equation is discretized in time using is a semi-implicit scheme, combining
+an implicit scheme for the advection/diffusion terms (centered in both time and
+space) and a (explicit) leapfrog scheme for the source term.
 
 Before discretization, the forced advection-diffusion equation is
 
 .. math::
+	:label: before-discretization
 
 	\frac{\partial u}{\partial t} + w \frac{\partial u}{\partial z} = \kappa
 	\frac{\partial^2 u}{\partial z^2} - S(t,z,u),
@@ -23,12 +23,13 @@ source term.
 After discretization, the equation can be written as
 
 .. math::
+	:label: after-discretization
 
 	\left[ \mathbf{I} + \Delta t \left( w \mathbf{D1} -
 	\kappa \mathbf{D2} \right) \right] \mathbf{u}^{\tau+1} =
 	\left[ \mathbf{I} - \Delta t \left( w \mathbf{D1} -
 	\kappa \mathbf{D2} \right) \right] \mathbf{u}^{\tau-1} -
-	2 \Delta t \mathbf{S}^{n},
+	2 \Delta t \mathbf{S}^{\tau},
 
 where :math:`\Delta t` is the time step,
 :math:`\mathbf{u}^{\tau} = (u^{\tau}_{1}, ..., u^{\tau}_{N})^{T}` and
@@ -65,11 +66,44 @@ matrices for the first and second order derivatives defined here as
 	\end{cases}
 	\end{equation}
 
-The boundary conditions are implemented by: (1) Zeroing out the first and last
-rows of :math:`\mathbf{D1}` and :math:`\mathbf{D2}`. (2) Zeroing out
-the first and last components of the source term. (3) Starting with a compatible
-initial condition vanishing at the boundaries. Note that (1) does not lead to
-singular matrices thanks to the identity. Finally, the matrix on the LHS side is
-constant and can be inverted only once.
+Note (1) :eq:`after-discretization` does not lead to singular matrices thanks
+to the identity. (2) The matrix on the LHS side is constant and can be inverted
+only once. (3) Zeroing-out the first and last rows of :math:`\mathbf{D1}` and
+:math:`\mathbf{D2}`, implies that the tendency at the boundaries is determined
+by the source term, i.e.
 
+.. math::
 
+	u_{\{1,N\}}^{\tau+1} =
+	u_{\{1,N\}}^{\tau-1} -
+	2 \Delta t S_{\{1,N\}}^{\tau}.
+
+Consider now the source term in the analytic model
+
+.. math ::
+
+	S(u, z) = - \frac{1}{\rho} \sum_{i} g_{i}(u, z) A_{i}
+	\exp\{ - \int_{z_1}^{z} g_{i}(u, z') \, dz' \},
+
+where
+
+.. math ::
+
+	g_{i}(u, z) = \frac{\alpha(z) N}{k(u-c_{i})^2)} .
+
+At the bottom :math:`z=z_1`:
+
+.. math ::
+
+	S(u_1, z_1) = - \frac{\alpha(z) N}{\rho} \sum_{i}
+	\frac{A_{i}}{k(u_1-c_{i})^2)},
+
+If :math:`u_1=0`, the phase speeds :math:`c_i` are uniformly spaced around
+:math:`c=0`, and the amplitudes are antisymmetric with respect to the phase
+speed, i.e. :math:`A(-c)=-A(c)`, then the bottom source is also zero. Then, if
+the initial wind and wind tendency at the bottom are zero, the will remain zero.
+
+At the top, the source term does not vanish for all :math:`t` analytically. Yet,
+numerically, the source terms is computed by applyting :math:`\mathbf{D1}` to
+the flux, which gurantee zeros-out the source term at the top. Then, if
+the initial wind and wind tendency at the top are zero, they will remain zero.
