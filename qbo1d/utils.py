@@ -270,11 +270,8 @@ def simple_periodogram(time, z, u, height=25e3, spinup=0, ax=None):
     ax.plot(torch.fft.fftshift(periods),
     torch.abs(torch.fft.fftshift(amps)), marker='.')
 
-    # ax.set_xlim(left=1 / time[-1])
     ax.set_xlim(left=periods[0])
     ax.set_xlim(right=90)
-
-    # ax.set_xscale('log')
 
     ax.set_xlabel(r'$\tau$ (months)')
     ax.set_ylabel(r'$|\hat{u}|^{2}$')
