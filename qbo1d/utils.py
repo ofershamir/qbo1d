@@ -54,78 +54,6 @@ def get_rho(z):
     return (P / (R * T)) * torch.exp(-(GRAV * z) / (R * T))
 
 
-def control_spectrum(sfe=3.7e-3, sfv=1e-8, cwe=32, cwv=225, corr=0.75):
-    """Returns the "control" source spectrum to be passed on to the
-    make_source_func utility.
-
-    The control source spectrum consists of 20 waves with equal wavenumbers 2
-    and equally spaced phase speeds in :math:`[-100, -10]`, :math:`[10, 100]`.
-    The amplitudes depend on the phase speeds as in (17) of AD99 with
-    stochastically varying magnitude (total flux at source level) and spectrum
-    width sampled from a 5 parameter distribution (for the means, variances
-    , and correlation). Here, the magnitude and width are first drawn from a
-    bivariate normal distribution with the specified correlation and then mapped
-    to bivariate log-normal distribution with the specified means and variances.
-
-    Parameters
-    ----------
-    sfe : float, optional
-        Total source flux mean, by default 3.7e-3
-    sfv : float, optional
-        Total source flux variance, by default 1e-8
-    cwe : float, optional
-        Spectrum width mean, by default 32
-    cwv : float, optional
-        Spectrum width variance, by default 225
-    corr : float, optional
-        Correlation in the underlying normal distribution, by default 0.75
-
-    Returns
-    -------
-    tensor
-        Wavenumbers[:math:`\mathrm{m^{-1}}`]
-    tensor
-        Phase speeds [:math:`\mathrm{m \, s^{-1}}`]
-    function
-        Wave amplitudes [Pa]
-    """
-
-    ks = 2 * 2 * np.pi / 4e7 * torch.ones(20)
-    cs = torch.hstack([torch.arange(-100., 0., 10.),
-    torch.arange(10., 110., 10.)])
-
-    # desired mean and variances of the bivariate log-normal distribution
-    # (total wave flux [Pa], spectral width [m s^{-1}])
-    es = torch.tensor([sfe, cwe])
-    vs = torch.tensor([sfv, cwv])
-
-    # resulting means and variances of the corresponding normal distribution
-    mu = - 0.5 * torch.log(vs / es**4 + 1 / es**2)
-    variances = torch.log(es**2) - 2 * mu
-
-    sigma = torch.tensor([[variances[0], corr*(variances[0]*variances[1])**0.5],
-                        [corr*(variances[0]*variances[1])**0.5, variances[1]]])
-
-    # choosing seed for reproducibility
-    torch.manual_seed(21*9+8)
-
-    def As():
-        normal_dist = (
-        torch.distributions.multivariate_normal.MultivariateNormal(mu, sigma))
-        normal_samp = normal_dist.sample()
-        lognormal_samp = torch.exp(normal_samp)
-
-        sf = lognormal_samp[0]
-        cw = lognormal_samp[1]
-
-        amps = torch.sign(cs) * torch.exp(-np.log(2) * (cs / cw)**2)
-        amps *= sf / torch.sum(torch.abs(amps)) / 0.1006
-
-        return amps
-
-    return ks, cs, As
-
-
 def make_source_func(solver, As=None, cs=None, ks=None, Gsa=0):
     """A wrraper for setting up the source function. At present the solver class
     assumes that the source depend depend explicitly only on the unknown u.
@@ -196,6 +124,25 @@ def make_source_func(solver, As=None, cs=None, ks=None, Gsa=0):
 
 
 def load_model(solver, ModelClass=None, path_to_state_dict=None):
+    """Utility for loading a Pytorch model specifying the source term as a
+    function of the zonal wind. By default, the utility loads the analytic
+    2-wave example, treating the analytic source term as a non-trainable dummy
+    neural network.
+
+    Parameters
+    ----------
+    solver : ADSolver
+        A solver instance holding the grid and differentiation matrix
+    ModelClass : torch.nn.Module, optional
+        The model class, by default None
+    path_to_state_dict : str, optional
+        Path to saved state_dict corresponding to ModelClass, by default None
+
+    Returns
+    -------
+    ModelClass
+        A ModelClass instance in eval mode
+    """
 
     if ModelClass is None:
         ModelClass = analytic2.WaveSpectrum
@@ -316,3 +263,25 @@ def simple_display(time, z, u, ax=None):
     ax.set_yticks(yticks)
     ax.tick_params(which='both', left=True, right=True, bottom=True, top=True)
 
+
+def simple_periodogram(time, z, u, height=25e3, spinup=0, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots()
+        fig.set_size_inches(8, 4)
+
+    u = u[abs(time - spinup).argmin():, abs(z - height).argmin()]
+
+    amps = torch.fft.fft(u)
+    freqs = torch.fft.fftfreq(amps.shape[0])
+    periods = 1 / freqs / 30
+
+    ax.plot(torch.fft.fftshift(periods),
+    torch.abs(torch.fft.fftshift(amps)), marker='.')
+
+    ax.set_xlim(left=periods[0])
+    ax.set_xlim(right=90)
+
+    ax.set_xlabel(r'$\tau$ (months)')
+    ax.set_ylabel(r'$|\hat{u}|^{2}$')
+
+    ax.grid()
