@@ -165,26 +165,25 @@
                 
   <div class="section" id="numerical-scheme">
 <h1>Numerical scheme<a class="headerlink" href="#numerical-scheme" title="Permalink to this headline">¶</a></h1>
-<p>The code solves the forced advection-diffusion equation in one space dimension
-with vanishing Dirichlet boundary conditions (B.C. are hard-coded). The equation
-is discretized in time using is a semi-implicit scheme, combining an implicit
-scheme for the advection/diffusion terms (centered in both time and space) and a
-(explicit) leapfrog scheme for the source term.</p>
+<p>The code solves the forced advection-diffusion equation in one space dimension.
+The equation is discretized in time using is a semi-implicit scheme, combining
+an implicit scheme for the advection/diffusion terms (centered in both time and
+space) and a (explicit) leapfrog scheme for the source term.</p>
 <p>Before discretization, the forced advection-diffusion equation is</p>
-<div class="math notranslate nohighlight">
-\[\frac{\partial u}{\partial t} + w \frac{\partial u}{\partial z} = \kappa
+<div class="math notranslate nohighlight" id="equation-before-discretization">
+<span class="eqno">(1)<a class="headerlink" href="#equation-before-discretization" title="Permalink to this equation">¶</a></span>\[\frac{\partial u}{\partial t} + w \frac{\partial u}{\partial z} = \kappa
 \frac{\partial^2 u}{\partial z^2} - S(t,z,u),\]</div>
 <p>where <span class="math notranslate nohighlight">\(t, z\)</span>, and <span class="math notranslate nohighlight">\(u\)</span> are the time, space (vertical level), and
 the unknown (zonal wind), respectively, <span class="math notranslate nohighlight">\(w\)</span> and <span class="math notranslate nohighlight">\(\kappa\)</span> are the
 constant advection and diffusion coefficients, and <span class="math notranslate nohighlight">\(S(t,z,u)\)</span> is the
 source term.</p>
 <p>After discretization, the equation can be written as</p>
-<div class="math notranslate nohighlight">
-\[\left[ \mathbf{I} + \Delta t \left( w \mathbf{D1} -
+<div class="math notranslate nohighlight" id="equation-after-discretization">
+<span class="eqno">(2)<a class="headerlink" href="#equation-after-discretization" title="Permalink to this equation">¶</a></span>\[\left[ \mathbf{I} + \Delta t \left( w \mathbf{D1} -
 \kappa \mathbf{D2} \right) \right] \mathbf{u}^{\tau+1} =
 \left[ \mathbf{I} - \Delta t \left( w \mathbf{D1} -
 \kappa \mathbf{D2} \right) \right] \mathbf{u}^{\tau-1} -
-2 \Delta t \mathbf{S}^{n},\]</div>
+2 \Delta t \mathbf{S}^{\tau},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta t\)</span> is the time step,
 <span class="math notranslate nohighlight">\(\mathbf{u}^{\tau} = (u^{\tau}_{1}, ..., u^{\tau}_{N})^{T}\)</span> and
 <span class="math notranslate nohighlight">\(\mathbf{S}^{\tau} = (S^{\tau}_{1}, ..., S^{\tau}_{N})^{T}\)</span> are the
@@ -211,12 +210,35 @@ D2_{ij} =
          $1 &lt; i &lt; N$, $1 \leq j \leq N$},  \\
         0 &amp;\text{for $i=N$, $1 \leq j \leq N$}.
 \end{cases}
-\end{equation}</div><p>The boundary conditions are implemented by: (1) Zeroing out the first and last
-rows of <span class="math notranslate nohighlight">\(\mathbf{D1}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{D2}\)</span>. (2) Zeroing out
-the first and last components of the source term. (3) Starting with a compatible
-initial condition vanishing at the boundaries. Note that (1) does not lead to
-singular matrices thanks to the identity. Finally, the matrix on the LHS side is
-constant and can be inverted only once.</p>
+\end{equation}</div><p>Note (1) Equation <a class="reference internal" href="#equation-after-discretization">(2)</a> does not lead to singular matrices thanks
+to the identity. (2) The matrix on the LHS side is constant and can be inverted
+only once. (3) Zeroing-out the first and last rows of <span class="math notranslate nohighlight">\(\mathbf{D1}\)</span> and
+<span class="math notranslate nohighlight">\(\mathbf{D2}\)</span>, implies that the tendency at the boundaries is determined
+by the source term, i.e.</p>
+<div class="math notranslate nohighlight">
+\[u_{\{1,N\}}^{\tau+1} =
+u_{\{1,N\}}^{\tau-1} -
+2 \Delta t S_{\{1,N\}}^{\tau}.\]</div>
+<p>Consider now the source term in the analytic model</p>
+<div class="math notranslate nohighlight">
+\[S(u, z) = - \frac{1}{\rho} \sum_{i} g_{i}(u, z) A_{i}
+\exp\left\{ - \int_{z_1}^{z} g_{i}(u, z') \, dz' \right\},\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[g_{i}(u, z) = \frac{\alpha(z) N}{k(u-c_{i})^2} .\]</div>
+<p>At the bottom <span class="math notranslate nohighlight">\(z=z_1\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[S(u_1, z_1) = - \frac{\alpha(z) N}{\rho} \sum_{i}
+\frac{A_{i}}{k(u_1-c_{i})^2}.\]</div>
+<p>If <span class="math notranslate nohighlight">\(u_1=0\)</span>, the phase speeds <span class="math notranslate nohighlight">\(c_i\)</span> are symmetric about
+<span class="math notranslate nohighlight">\(c=0\)</span>, and the amplitudes are antisymmetric with respect to the phase
+speed, i.e. <span class="math notranslate nohighlight">\(A(-c)=-A(c)\)</span>, then the bottom source is also zero. Then, if
+the initial wind and wind tendency at the bottom are zero, they will remain
+zero.</p>
+<p>At the top, the source term does not vanish for all <span class="math notranslate nohighlight">\(t\)</span> analytically. Yet,
+numerically, the source terms is computed by applyting <span class="math notranslate nohighlight">\(\mathbf{D1}\)</span> to
+the flux, which zeros-out the source term at the top. Then, if
+the initial wind and wind tendency at the top are zero, they will remain zero.</p>
 </div>
 
 

@@ -141,9 +141,34 @@
               
               <div class="toc-item">
                 
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
 
 <nav id="bd-toc-nav">
-    
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#adsolver">
+   adsolver
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-analytic2">
+   analytic2
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-analytic20">
+   analytic20
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-utils">
+   utils
+  </a>
+ </li>
+</ul>
+
 </nav>
               </div>
               
@@ -165,7 +190,12 @@
                 
   <div class="section" id="code-reference">
 <h1>Code Reference<a class="headerlink" href="#code-reference" title="Permalink to this headline">¶</a></h1>
-<p>For the most part, the notations in the code, and in the project in general, follow the notations in Holton and Lindzen (1972), with the exception of using <span class="math notranslate nohighlight">\(\kappa\)</span> to denote the diffusion coefficient and <span class="math notranslate nohighlight">\(NBV\)</span> to denote the Brunt-Vaisala frequency.</p>
+<p>For the most part, the notations in the code, and in the project in general,
+follow the notations in Holton and Lindzen (1972), with the exception of using
+<span class="math notranslate nohighlight">\(\kappa\)</span> to denote the diffusion coefficient and <span class="math notranslate nohighlight">\(NBV\)</span> to denote the
+Brunt-Vaisala frequency.</p>
+<div class="section" id="adsolver">
+<h2>adsolver<a class="headerlink" href="#adsolver" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="adsolver.ADSolver">
 <em class="property">class </em><code class="sig-prename descclassname">adsolver.</code><code class="sig-name descname">ADSolver</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z_min</span><span class="o">=</span><span class="default_value">17000.0</span></em>, <em class="sig-param"><span class="n">z_max</span><span class="o">=</span><span class="default_value">35000.0</span></em>, <em class="sig-param"><span class="n">dz</span><span class="o">=</span><span class="default_value">250</span></em>, <em class="sig-param"><span class="n">t_min</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">t_max</span><span class="o">=</span><span class="default_value">373248000</span></em>, <em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">86400</span></em>, <em class="sig-param"><span class="n">w</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">kappa</span><span class="o">=</span><span class="default_value">0.3</span></em>, <em class="sig-param"><span class="n">initial_condition</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#adsolver.ADSolver" title="Permalink to this definition">¶</a></dt>
@@ -211,7 +241,18 @@ source term.</p>
 <dl class="py attribute">
 <dt id="adsolver.ADSolver.D1">
 <code class="sig-name descname">D1</code><a class="headerlink" href="#adsolver.ADSolver.D1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Differentiation matrix for centered (second-order accurate) first-order derivative</p>
+<dd><p>Differentiation matrix for centered (second-order accurate) first derivative</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="adsolver.ADSolver.D2">
+<code class="sig-name descname">D2</code><a class="headerlink" href="#adsolver.ADSolver.D2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Differentiation matrix for centered (second-order accurate) second derivative</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>tensor</p>
@@ -243,7 +284,164 @@ entries are the zonal wind profiles at each time.</p>
 
 </dd></dl>
 
-<span class="target" id="module-utils"></span><dl class="py data">
+</div>
+<div class="section" id="module-analytic2">
+<span id="analytic2"></span><h2>analytic2<a class="headerlink" href="#module-analytic2" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="analytic2.WaveSpectrum">
+<em class="property">class </em><code class="sig-prename descclassname">analytic2.</code><code class="sig-name descname">WaveSpectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">solver</span></em>, <em class="sig-param"><span class="n">As</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ks</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">Gsa</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#analytic2.WaveSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>A ModelClass for setting up the analytic 2 wave source spectrum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solver</strong> (<a class="reference internal" href="#adsolver.ADSolver" title="adsolver.ADSolver"><em>ADSolver</em></a>) – A solver instance holding the grid and differentiation matrix</p></li>
+<li><p><strong>As</strong> (<em>tensor/function</em><em>, </em><em>optional</em>) – Wave amplitudes [Pa], by default None</p></li>
+<li><p><strong>cs</strong> (<em>tensor/function</em><em>, </em><em>optional</em>) – Phase speeds [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-1}}\)</span>], by default None</p></li>
+<li><p><strong>ks</strong> (<em>tensor/function</em><em>, </em><em>optional</em>) – Wavenumbers [<span class="math notranslate nohighlight">\(\mathrm{m^{-1}}\)</span>], by default None</p></li>
+<li><p><strong>Gsa</strong> (<em>float</em><em>, </em><em>optional</em>) – Amplitude of semi-annual oscillation [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-2}}\)</span>], by default 0</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="analytic2.WaveSpectrum.g_func">
+<code class="sig-name descname">g_func</code><a class="headerlink" href="#analytic2.WaveSpectrum.g_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>An interface for keeping track of the function g in the analytic forcing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="analytic2.WaveSpectrum.F_func">
+<code class="sig-name descname">F_func</code><a class="headerlink" href="#analytic2.WaveSpectrum.F_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>An interface for keeping track of the function F in the analytic forcing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="analytic2.WaveSpectrum.G_func">
+<code class="sig-name descname">G_func</code><a class="headerlink" href="#analytic2.WaveSpectrum.G_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>An interface for keeping track of the semi-annual oscillation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="analytic2.WaveSpectrum.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="headerlink" href="#analytic2.WaveSpectrum.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>An interface for calculating the source term as a function of u. By
+default, torch.nn.Module uses the forward method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> (<em>tensor</em>) – Zonal wind profile</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Source term as a function of u</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-analytic20">
+<span id="analytic20"></span><h2>analytic20<a class="headerlink" href="#module-analytic20" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="analytic20.WaveSpectrum">
+<em class="property">class </em><code class="sig-prename descclassname">analytic20.</code><code class="sig-name descname">WaveSpectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">solver</span></em>, <em class="sig-param"><span class="n">sfe</span><span class="o">=</span><span class="default_value">0.0037</span></em>, <em class="sig-param"><span class="n">sfv</span><span class="o">=</span><span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">cwe</span><span class="o">=</span><span class="default_value">32</span></em>, <em class="sig-param"><span class="n">cwv</span><span class="o">=</span><span class="default_value">225</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">0.75</span></em><span class="sig-paren">)</span><a class="headerlink" href="#analytic20.WaveSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>A ModelClass for setting up the analytic 2 wave source spectrum.</p>
+<p>The control source spectrum consists of 20 waves with equal wavenumbers 2
+and equally spaced phase speeds in <span class="math notranslate nohighlight">\([-100, -10]\)</span>, <span class="math notranslate nohighlight">\([10, 100]\)</span>.
+The amplitudes depend on the phase speeds as in (17) of AD99 with
+stochastically varying magnitude (total flux at source level) and spectrum
+width sampled from a 5 parameter distribution (for the means, variances
+, and correlation). Here, the magnitude and width are first drawn from a
+bivariate normal distribution with the specified correlation and then mapped
+to bivariate log-normal distribution with the specified means and variances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solver</strong> (<a class="reference internal" href="#adsolver.ADSolver" title="adsolver.ADSolver"><em>ADSolver</em></a>) – A solver instance holding the grid and differentiation matrix</p></li>
+<li><p><strong>sfe</strong> (<em>float</em><em>, </em><em>optional</em>) – Total source flux mean, by default 3.7e-3</p></li>
+<li><p><strong>sfv</strong> (<em>float</em><em>, </em><em>optional</em>) – Total source flux variance, by default 1e-8</p></li>
+<li><p><strong>cwe</strong> (<em>float</em><em>, </em><em>optional</em>) – Spectrum width mean, by default 32</p></li>
+<li><p><strong>cwv</strong> (<em>float</em><em>, </em><em>optional</em>) – Spectrum width variance, by default 225</p></li>
+<li><p><strong>corr</strong> (<em>float</em><em>, </em><em>optional</em>) – Correlation in the underlying normal distribution, by default 0.75</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="analytic20.WaveSpectrum.g_func">
+<code class="sig-name descname">g_func</code><a class="headerlink" href="#analytic20.WaveSpectrum.g_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>An interface for keeping track of the function g in the analytic forcing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="analytic20.WaveSpectrum.F_func">
+<code class="sig-name descname">F_func</code><a class="headerlink" href="#analytic20.WaveSpectrum.F_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>An interface for keeping track of the function F in the analytic forcing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>func</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="analytic20.WaveSpectrum.As">
+<code class="sig-name descname">As</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#analytic20.WaveSpectrum.As" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the wave amplitudes from a bivariate log-normal distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An instance of wave amplitudes to be used in self.forward method</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="analytic20.WaveSpectrum.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="headerlink" href="#analytic20.WaveSpectrum.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>An interface for calculating the source term as a function of u. By
+default, torch.nn.Module uses the forward method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> (<em>tensor</em>) – Zonal wind profile</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Source term as a function of u</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-utils">
+<span id="utils"></span><h2>utils<a class="headerlink" href="#module-utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py data">
 <dt id="utils.GRAV">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">GRAV</code><em class="property"> = 9.8</em><a class="headerlink" href="#utils.GRAV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Earth’s gravitational acceleration [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-2}}\)</span>]</p>
@@ -271,40 +469,6 @@ entries are the zonal wind profiles at each time.</p>
 <dt id="utils.T">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">T</code><em class="property"> = 204</em><a class="headerlink" href="#utils.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reference temperature [K], corresponding to the Brunt-Vaisala frequency</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="utils.control_spectrum">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">control_spectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sfe</span><span class="o">=</span><span class="default_value">0.0037</span></em>, <em class="sig-param"><span class="n">sfv</span><span class="o">=</span><span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">cwe</span><span class="o">=</span><span class="default_value">32</span></em>, <em class="sig-param"><span class="n">cwv</span><span class="o">=</span><span class="default_value">225</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">0.75</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.control_spectrum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the “control” source spectrum to be passed on to the
-make_source_func utility.</p>
-<p>The control source spectrum consists of 20 waves with equal wavenumbers 2
-and equally spaced phase speeds in <span class="math notranslate nohighlight">\([-100, -10]\)</span>, <span class="math notranslate nohighlight">\([10, 100]\)</span>.
-The amplitudes depend on the phase speeds as in (17) of AD99 with
-stochastically varying magnitude (total flux at source level) and spectrum
-width sampled from a 5 parameter distribution (for the means, variances
-, and correlation). Here, the magnitude and width are first drawn from a
-bivariate normal distribution with the specified correlation and then mapped
-to bivariate log-normal distribution with the specified means and variances.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sfe</strong> (<em>float</em><em>, </em><em>optional</em>) – Total source flux mean, by default 3.7e-3</p></li>
-<li><p><strong>sfv</strong> (<em>float</em><em>, </em><em>optional</em>) – Total source flux variance, by default 1e-8</p></li>
-<li><p><strong>cwe</strong> (<em>float</em><em>, </em><em>optional</em>) – Spectrum width mean, by default 32</p></li>
-<li><p><strong>cwv</strong> (<em>float</em><em>, </em><em>optional</em>) – Spectrum width variance, by default 225</p></li>
-<li><p><strong>corr</strong> (<em>float</em><em>, </em><em>optional</em>) – Correlation in the underlying normal distribution, by default 0.75</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>tensor</em> – Wavenumbers[<span class="math notranslate nohighlight">\(\mathrm{m^{-1}}\)</span>]</p></li>
-<li><p><em>tensor</em> – Phase speeds [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-1}}\)</span>]</p></li>
-<li><p><em>function</em> – Wave amplitudes [Pa]</p></li>
-</ul>
-</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -393,8 +557,32 @@ in (9) of Holton and Lindzen.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt id="utils.load_model">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">solver</span></em>, <em class="sig-param"><span class="n">ModelClass</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">path_to_state_dict</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility for loading a Pytorch model specifying the source term as a
+function of the zonal wind. By default, the utility loads the analytic
+2-wave example, treating the analytic source term as a non-trainable dummy
+neural network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solver</strong> (<a class="reference internal" href="#adsolver.ADSolver" title="adsolver.ADSolver"><em>ADSolver</em></a>) – A solver instance holding the grid and differentiation matrix</p></li>
+<li><p><strong>ModelClass</strong> (<em>torch.nn.Module</em><em>, </em><em>optional</em>) – The model class, by default None</p></li>
+<li><p><strong>path_to_state_dict</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to saved state_dict corresponding to ModelClass, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A ModelClass instance in eval mode</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ModelClass</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="utils.make_source_func">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">make_source_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">solver</span></em>, <em class="sig-param"><span class="n">As</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ks</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.make_source_func" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">make_source_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">solver</span></em>, <em class="sig-param"><span class="n">As</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ks</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">Gsa</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.make_source_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrraper for setting up the source function. At present the solver class
 assumes that the source depend depend explicitly only on the unknown u.</p>
 <dl class="field-list simple">
@@ -404,10 +592,11 @@ assumes that the source depend depend explicitly only on the unknown u.</p>
 <li><p><strong>As</strong> (<em>tensor/function</em><em>, </em><em>optional</em>) – Wave amplitudes [Pa], by default None</p></li>
 <li><p><strong>cs</strong> (<em>tensor/function</em><em>, </em><em>optional</em>) – Phase speeds [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-1}}\)</span>], by default None</p></li>
 <li><p><strong>ks</strong> (<em>tensor/function</em><em>, </em><em>optional</em>) – Wavenumbers [<span class="math notranslate nohighlight">\(\mathrm{m^{-1}}\)</span>], by default None</p></li>
+<li><p><strong>Gsa</strong> (<em>float</em><em>, </em><em>optional</em>) – Amplitude of semi-annual oscillation [<span class="math notranslate nohighlight">\(\mathrm{m \, s^{-2}}\)</span>], by default 0</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Source terms as a function of u</p>
+<dd class="field-even"><p>Source term as a function of u</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>function</p>
@@ -415,6 +604,7 @@ assumes that the source depend depend explicitly only on the unknown u.</p>
 </dl>
 </dd></dl>
 
+</div>
 </div>
 
 

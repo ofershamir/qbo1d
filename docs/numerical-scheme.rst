@@ -66,7 +66,7 @@ matrices for the first and second order derivatives defined here as
 	\end{cases}
 	\end{equation}
 
-Note (1) :eq:`after-discretization` does not lead to singular matrices thanks
+Note (1) Equation :eq:`after-discretization` does not lead to singular matrices thanks
 to the identity. (2) The matrix on the LHS side is constant and can be inverted
 only once. (3) Zeroing-out the first and last rows of :math:`\mathbf{D1}` and
 :math:`\mathbf{D2}`, implies that the tendency at the boundaries is determined
@@ -83,27 +83,28 @@ Consider now the source term in the analytic model
 .. math ::
 
 	S(u, z) = - \frac{1}{\rho} \sum_{i} g_{i}(u, z) A_{i}
-	\exp\{ - \int_{z_1}^{z} g_{i}(u, z') \, dz' \},
+	\exp\left\{ - \int_{z_1}^{z} g_{i}(u, z') \, dz' \right\},
 
 where
 
 .. math ::
 
-	g_{i}(u, z) = \frac{\alpha(z) N}{k(u-c_{i})^2)} .
+	g_{i}(u, z) = \frac{\alpha(z) N}{k(u-c_{i})^2} .
 
 At the bottom :math:`z=z_1`:
 
 .. math ::
 
 	S(u_1, z_1) = - \frac{\alpha(z) N}{\rho} \sum_{i}
-	\frac{A_{i}}{k(u_1-c_{i})^2)},
+	\frac{A_{i}}{k(u_1-c_{i})^2}.
 
-If :math:`u_1=0`, the phase speeds :math:`c_i` are uniformly spaced around
+If :math:`u_1=0`, the phase speeds :math:`c_i` are symmetric about
 :math:`c=0`, and the amplitudes are antisymmetric with respect to the phase
 speed, i.e. :math:`A(-c)=-A(c)`, then the bottom source is also zero. Then, if
-the initial wind and wind tendency at the bottom are zero, the will remain zero.
+the initial wind and wind tendency at the bottom are zero, they will remain
+zero.
 
 At the top, the source term does not vanish for all :math:`t` analytically. Yet,
 numerically, the source terms is computed by applyting :math:`\mathbf{D1}` to
-the flux, which gurantee zeros-out the source term at the top. Then, if
+the flux, which zeros-out the source term at the top. Then, if
 the initial wind and wind tendency at the top are zero, they will remain zero.
