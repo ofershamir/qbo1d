@@ -209,7 +209,7 @@ def load_model(solver, ModelClass=None, path_to_state_dict=None):
     return model
 
 
-def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
+def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False, pad=int(1e6)):
     """Returns the estimated QBO period in months using the dominant (maximal)
     Fourier mode.
 
@@ -227,6 +227,9 @@ def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
         Spinup time to exclude from the estimation [:math:`\mathrm{s}`], by default 0
     bw_filter : bool, optional
         Flag for invoking a Butterworth filter, by default False
+    pad : int, optional
+        Number of zeros to pad before taking FFT, to increase the number of
+        resolvable periods.
 
     Returns
     -------
@@ -236,16 +239,21 @@ def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
 
     fs = 86400 / (time[1] - time[0]).item()
     u = u[abs(time - spinup).argmin():, abs(z - height).argmin()]
+    
+    max_period = u.shape[0]
+    u = torch.cat((u, torch.zeros(pad)))
 
     if bw_filter:
         sos = signal.butter(9, 1 / 120, output='sos', fs=fs)
         u = torch.tensor(signal.sosfilt(sos, u - u.mean()))
 
     amps = torch.fft.fft(u)
-    freqs = torch.fft.fftfreq(amps.shape[0])
-
-    return abs(1 / freqs[abs(amps).argmax()]) / 30
-
+    periods = 1 / abs(torch.fft.fftfreq(amps.shape[0]))
+    
+    idx = periods < max_period
+    amps, periods = amps[idx], periods[idx]
+    
+    return periods[abs(amps).argmax()] / 30
 
 def estimate_amplitude(time, z, u, height=25e3, spinup=0, bw_filter=False):
     """Returns the estimated QBO amplitude in m s^{-1} using the standard
