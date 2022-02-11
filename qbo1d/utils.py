@@ -192,23 +192,22 @@ def _process_signal(time, z, u, height, spinup, bw_filter, pad):
     u = u[abs(time - spinup).argmin():, abs(z - height).argmin()]
     
     if pad:
-        max_period = u.shape[0]
-        n_zeros = int(2.5e6) - max_period
-        u = torch.cat((u, torch.zeros(n_zeros)))
+        n_fft = int(2.5e6)
+    else:
+        n_fft = u.shape[0]
         
     if bw_filter:
         sos = signal.butter(9, 1 / 120, output='sos', fs=fs)
         u = torch.tensor(signal.sosfilt(sos, u - u.mean()))
         
-    amps = torch.fft.fft(u)
+    amps = torch.fft.fft(u, n=n_fft)
     periods = 1 / torch.fft.fftfreq(amps.shape[0])
     
+    idx = 0 <= periods
     if pad:
-        idx = abs(periods) <= max_period
-        periods, amps = periods[idx], amps[idx]
-        u = u[:max_period]
-    
-    return u, periods / 30, amps
+        idx = idx & (periods <= u.shape[0])
+        
+    return u, periods[idx] / 30, amps[idx]
         
 
 def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
@@ -242,7 +241,7 @@ def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
         bw_filter, pad=True
     )
     
-    return abs(periods[abs(amps).argmax()])
+    return periods[abs(amps).argmax()]
 
 
 def estimate_amplitude(time, z, u, height=25e3, spinup=0, bw_filter=False):
@@ -312,11 +311,8 @@ def simple_periodogram(time, z, u, height=25e3, spinup=0, ax=None):
         height, spinup,
         bw_filter=False, pad=True
     )
-    
-    periods = torch.fft.fftshift(periods)
-    amps = torch.fft.fftshift(amps)
-    
-    idx = (0 <= periods) & (periods <= 100)
+    print(periods.shape)
+    idx = periods <= 100
     periods, amps = periods[idx], amps[idx]
     
     if ax is None:

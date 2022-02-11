@@ -119,7 +119,7 @@ class ADSolver:
         u[1] = (torch.matmul(torch.eye(self.nlev) - self.D, u[0]) -
         self.dt * source)
 
-        for n in range(1, nsteps - 2):
+        for n in range(1, nsteps - 1):
 
             self.current_time += self.dt
             source = source_func(u[n])
