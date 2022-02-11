@@ -155,6 +155,60 @@ def load_model(solver, ModelClass=None, path_to_state_dict=None):
     model.eval()
     return model
 
+def _process_signal(time, z, u, height, spinup, bw_filter, pad):
+    """Applies various signal processing options to a zonal wind field and
+    returns the signal and returns the processed signal along with the periods
+    and amplitudes of its FFT. Should only be called by other functions in
+    this file.
+    
+    Parameters
+    ----------
+    time : tensor
+        Time [:math:`\mathrm{s}`]
+    z : tensor
+        Height [m]
+    u : tensor
+        Zonal wind [:math:`\mathrm{m \, s^{-1}}`]
+    height : float
+        Height for estimating the period [:math:`\mathrm{m}`]
+    spinup : float
+        Spinup time to exclude from the estimation [:math:`\mathrm{s}`]
+    bw_filter : bool
+        Flag for invoking a Butterworth filter
+    pad : bool
+        Flag for zero-padding the signal before Fourier-transforming.
+        
+    Returns
+    -------
+    tensor
+        u, possibly with Butterworth filtering applied
+    tensor
+        periods of FFT modes in months
+    tensor
+        complex amplitudes of FFT modes
+    
+    """
+    fs = 86400 / (time[1] - time[0]).item()
+    u = u[abs(time - spinup).argmin():, abs(z - height).argmin()]
+    
+    if pad:
+        n_fft = int(2.5e6)
+    else:
+        n_fft = u.shape[0]
+        
+    if bw_filter:
+        sos = signal.butter(9, 1 / 120, output='sos', fs=fs)
+        u = torch.tensor(signal.sosfilt(sos, u - u.mean()))
+        
+    amps = torch.fft.fft(u, n=n_fft)
+    periods = 1 / torch.fft.fftfreq(amps.shape[0])
+    
+    idx = 0 <= periods
+    if pad:
+        idx = idx & (periods <= u.shape[0])
+        
+    return u, periods[idx] / 30, amps[idx]
+        
 
 def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
     """Returns the estimated QBO period in months using the dominant (maximal)
@@ -180,18 +234,14 @@ def estimate_period(time, z, u, height=25e3, spinup=0, bw_filter=False):
     float
         QBO period [months]
     """
-
-    fs = 86400 / (time[1] - time[0]).item()
-    u = u[abs(time - spinup).argmin():, abs(z - height).argmin()]
-
-    if bw_filter:
-        sos = signal.butter(9, 1 / 120, output='sos', fs=fs)
-        u = torch.tensor(signal.sosfilt(sos, u - u.mean()))
-
-    amps = torch.fft.fft(u)
-    freqs = torch.fft.fftfreq(amps.shape[0])
-
-    return abs(1 / freqs[abs(amps).argmax()]) / 30
+    
+    _, periods, amps = _process_signal(
+        time, z, u, 
+        height, spinup, 
+        bw_filter, pad=True
+    )
+    
+    return periods[abs(amps).argmax()]
 
 
 def estimate_amplitude(time, z, u, height=25e3, spinup=0, bw_filter=False):
@@ -218,13 +268,12 @@ def estimate_amplitude(time, z, u, height=25e3, spinup=0, bw_filter=False):
     float
         QBO amplitude [:math:`\mathrm{m \, s^{-1}}`]
     """
-
-    fs = 86400 / (time[1] - time[0]).item()
-    u = u[abs(time - spinup).argmin():, abs(z - height).argmin()]
-
-    if bw_filter:
-        sos = signal.butter(9, 1 / 120, output='sos', fs=fs)
-        u = torch.tensor(signal.sosfilt(sos, u - u.mean()))
+    
+    u, _, _ = _process_signal(
+        time, z, u,
+        height, spinup,
+        bw_filter, pad=False
+    )
 
     return torch.std(u)
 
@@ -257,22 +306,22 @@ def simple_display(time, z, u, ax=None):
 
 
 def simple_periodogram(time, z, u, height=25e3, spinup=0, ax=None):
+    _, periods, amps = _process_signal(
+        time, z, u,
+        height, spinup,
+        bw_filter=False, pad=True
+    )
+    print(periods.shape)
+    idx = periods <= 100
+    periods, amps = periods[idx], amps[idx]
+    
     if ax is None:
         fig, ax = plt.subplots()
         fig.set_size_inches(8, 4)
 
-    u = u[abs(time - spinup).argmin():, abs(z - height).argmin()]
+    ax.plot(periods, torch.abs(amps), marker='.')
 
-    amps = torch.fft.fft(u)
-    freqs = torch.fft.fftfreq(amps.shape[0])
-    periods = 1 / freqs / 30
-
-    ax.plot(torch.fft.fftshift(periods),
-    torch.abs(torch.fft.fftshift(amps)), marker='.')
-
-    ax.set_xlim(left=periods[0])
-    ax.set_xlim(right=90)
-
+    ax.set_xlim(0, 100)
     ax.set_xlabel(r'$\tau$ (months)')
     ax.set_ylabel(r'$|\hat{u}|^{2}$')
 
