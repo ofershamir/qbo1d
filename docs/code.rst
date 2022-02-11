@@ -10,23 +10,24 @@ Brunt-Vaisala frequency.
 adsolver
 =============
 
-.. autoclass:: adsolver.ADSolver
+.. autoclass:: qbo1d.adsolver.ADSolver
    :members:
 
 analytic2
 =============
 
-.. automodule:: analytic2
+.. automodule:: qbo1d.analytic2
    :members:
 
 analytic20
 =============
 
-.. automodule:: analytic20
+.. automodule:: qbo1d.analytic20
    :members:
 
 utils
 =============
 
-.. automodule:: utils
+.. automodule:: qbo1d.utils
    :members:
+   :private-members:
