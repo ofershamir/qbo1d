@@ -3,7 +3,7 @@ import numpy as np
 from scipy import signal
 import torch
 
-from . import analytic2
+from . import deterministic_forcing
 
 #: Physical constants
 GRAV = 9.8  #: Earth's gravitational acceleration [:math:`\mathrm{m \, s^{-2}}`]
@@ -145,10 +145,10 @@ def load_model(solver, ModelClass=None, path_to_state_dict=None):
     """
 
     if ModelClass is None:
-        ModelClass = analytic2.WaveSpectrum
+        ModelClass = deterministic_forcing.WaveSpectrum
 
     if path_to_state_dict is None:
-        path_to_state_dict = 'models/analytic2.pth'
+        path_to_state_dict = 'models/deterministic_forcing.pth'
 
     model = ModelClass(solver)
     model.load_state_dict(torch.load(path_to_state_dict))
