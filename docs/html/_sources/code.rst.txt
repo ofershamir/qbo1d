@@ -13,16 +13,16 @@ adsolver
 .. autoclass:: qbo1d.adsolver.ADSolver
    :members:
 
-analytic2
-=============
+deterministic_forcing
+=====================
 
-.. automodule:: qbo1d.analytic2
+.. automodule:: qbo1d.deterministic_forcing
    :members:
 
-analytic20
-=============
+stochastic_forcing
+==================
 
-.. automodule:: qbo1d.analytic20
+.. automodule:: qbo1d.stochastic_forcing
    :members:
 
 utils
