@@ -12,6 +12,7 @@ Welcome to qbo1d's documentation!
 
    numerical-scheme
    code
+..
    model-setup
    scenarios
 
