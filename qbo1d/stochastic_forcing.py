@@ -3,17 +3,76 @@ import torch
 
 from . import utils
 
-class WaveSpectrum(torch.nn.Module):
-    """A ModelClass for setting up the stochastic source term.
 
-    The control source spectrum consists of 20 waves with equal wavenumbers 2
+def sample_sf_cw(n, sfe, sfv, cwe, cwv, corr, seed):
+    """Draw a squence of source fluxes and spectral widths.
+
+    The control spectrum consists of 20 waves with equal wavenumbers 2
     and equally spaced phase speeds in :math:`[-100, -10]`, :math:`[10, 100]`.
     The amplitudes depend on the phase speeds as in (17) of AD99 with
     stochastically varying magnitude (total flux at source level) and spectrum
-    width sampled from a 5 parameter distribution (for the means, variances
+    width sampled from a 5-parameter distribution (for the means, variances
     , and correlation). Here, the magnitude and width are first drawn from a
     bivariate normal distribution with the specified correlation and then mapped
     to bivariate log-normal distribution with the specified means and variances.
+
+    Parameters
+    ----------
+    n : int
+        Number of realizations
+    sfe : float
+        Total source flux mean
+    sfv : float
+        Total source flux variance
+    cwe : float
+        Spectrum width mean
+    cwv : float
+        Spectrum width variance
+    corr : float
+        Correlation in the underlying normal distribution
+    seed : int
+        A seed for the pseudorandom number generator
+
+    Returns
+    -------
+    (float, float)
+        Source fluxes, spectral widths
+    """
+
+    # means and variances of the bivariate log-normal distribution
+    es = torch.tensor([sfe, cwe])
+    vs = torch.tensor([sfv, cwv])
+
+    # resulting means and variances of the corresponding normal distribution
+    mu = - 0.5 * torch.log(vs / es**4 + 1 / es**2)
+    variances = torch.log(es**2) - 2 * mu
+
+    # covariance matrix
+    sigma = torch.tensor([[variances[0],
+    corr*(variances[0]*variances[1])**0.5],
+    [corr*(variances[0]*variances[1])**0.5,
+    variances[1]]])
+
+    # choose seed for reproducibility
+    torch.manual_seed(seed)
+
+    # draw from normal distribution
+    normal_dist = (
+    torch.distributions.multivariate_normal.MultivariateNormal(mu, sigma))
+    normal_samples = normal_dist.sample((n,))
+
+    # map to log-normal distribution
+    lognormal_samples = torch.exp(normal_samples)
+
+    # surface fluxes and spectral widths
+    sf = lognormal_samples[:, 0]
+    cw = lognormal_samples[:, 1]
+
+    return sf, cw
+
+
+class WaveSpectrum(torch.nn.Module):
+    """A ModelClass for setting up the stochastic source term.
 
     Parameters
     ----------
@@ -69,34 +128,9 @@ class WaveSpectrum(torch.nn.Module):
         # keep track of source
         self.s = torch.zeros((self._nsteps, self._nlev))
 
-        # means and variances of the bivariate log-normal distribution
-        es = torch.tensor([sfe, cwe])
-        vs = torch.tensor([sfv, cwv])
-
-        # resulting means and variances of the corresponding normal distribution
-        mu = - 0.5 * torch.log(vs / es**4 + 1 / es**2)
-        variances = torch.log(es**2) - 2 * mu
-
-        # covariance matrix
-        sigma = torch.tensor([[variances[0],
-        corr*(variances[0]*variances[1])**0.5],
-        [corr*(variances[0]*variances[1])**0.5,
-        variances[1]]])
-
-        # choose seed for reproducibility
-        torch.manual_seed(seed)
-
-        # draw from normal distribution
-        normal_dist = (
-        torch.distributions.multivariate_normal.MultivariateNormal(mu, sigma))
-        normal_samples = normal_dist.sample((self._nsteps,))
-
-        # map to log-normal distribution
-        lognormal_samples = torch.exp(normal_samples)
-
         # surface fluxes and spectral widths
-        self.sf = lognormal_samples[:, 0]
-        self.cw = lognormal_samples[:, 1]
+        self.sf, self.cw = sample_sf_cw(n=self._nsteps,
+        sfe=sfe, sfv=sfv, cwe=cwe, cwv=cwv, corr=corr, seed=seed)
 
         # wavenumbers and phase speeds
         self.ks = 2 * 2 * np.pi / 4e7 * torch.ones(20)

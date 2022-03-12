@@ -74,8 +74,8 @@ class ADSolver:
             self.D2[i, [i - 1, i + 1]] = 1
             self.D2[i, i] = -2
         # for zero flux (Neumann) BC at the top uncomment following two lines
-        # self.D2[self.nlev - 1, self.nlev - 2] = 2
-        # self.D2[self.nlev - 1, self.nlev - 1] = -2
+#         self.D2[self.nlev - 1, self.nlev - 2] = 2
+#         self.D2[self.nlev - 1, self.nlev - 1] = -2
         self.D2 /= self.dz ** 2
 
         self.D = self.dt * (w * self.D1 - kappa * self.D2)
