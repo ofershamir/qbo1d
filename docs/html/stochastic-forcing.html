@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome to qbo1d’s documentation! &#8212; qbo1d  documentation</title>
+    <title>Stochastic forcing &#8212; qbo1d  documentation</title>
     
     <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -35,7 +35,8 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Model description" href="model-description.html" />
+    <link rel="next" title="Numerical scheme" href="numerical-scheme.html" />
+    <link rel="prev" title="Model description" href="model-description.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -53,7 +54,7 @@
   <div id="navbar-start">
     
     
-<a class="navbar-brand" href="#">
+<a class="navbar-brand" href="index.html">
 <p class="title">qbo1d</p>
 </a>
 
@@ -76,8 +77,8 @@
  </a>
 </li>
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="stochastic-forcing.html">
+<li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
   Stochastic forcing
  </a>
 </li>
@@ -140,24 +141,9 @@
               
               <div class="toc-item">
                 
-<div class="tocsection onthispage pt-5 pb-3">
-    <i class="fas fa-list"></i> On this page
-</div>
 
 <nav id="bd-toc-nav">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   Welcome to qbo1d’s documentation!
-  </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#indices-and-tables">
-   Indices and tables
-  </a>
- </li>
-</ul>
-
+    
 </nav>
               </div>
               
@@ -177,31 +163,52 @@
               
               <div>
                 
-  <div class="section" id="welcome-to-qbo1d-s-documentation">
-<h1>Welcome to qbo1d’s documentation!<a class="headerlink" href="#welcome-to-qbo1d-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="model-description.html">Model description</a></li>
-<li class="toctree-l1"><a class="reference internal" href="stochastic-forcing.html">Stochastic forcing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="numerical-scheme.html">Numerical scheme</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code.html">Code reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="code.html#adsolver">adsolver</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#module-qbo1d.deterministic_forcing">deterministic_forcing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#module-qbo1d.stochastic_forcing">stochastic_forcing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#module-qbo1d.utils">utils</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
+  <div class="section" id="stochastic-forcing">
+<h1>Stochastic forcing<a class="headerlink" href="#stochastic-forcing" title="Permalink to this headline">¶</a></h1>
+<p>Recall the definition of the forcing (see
+<a class="reference internal" href="model-description.html#model-description"><span class="std std-ref">Model description</span></a>):</p>
+<div class="math notranslate nohighlight" id="equation-stochastic-forcing-drag-definition">
+<span class="eqno">(1)<a class="headerlink" href="#equation-stochastic-forcing-drag-definition" title="Permalink to this equation">¶</a></span>\[S(u, z) = \frac{1}{\rho} \frac{\partial}{\partial z} F(u, z),\]</div>
+<p>where the wave flux <span class="math notranslate nohighlight">\(F(u, z)\)</span> is parameterized as follows:</p>
+<div class="math notranslate nohighlight" id="equation-stochastic-forcing-flux-definition">
+<span class="eqno">(2)<a class="headerlink" href="#equation-stochastic-forcing-flux-definition" title="Permalink to this equation">¶</a></span>\[F(u, z) = \sum_{i} A_{i}
+\exp\left\{ - \int_{z_1}^{z} g_{i}(u, z') \, dz' \right\},\]</div>
+<p>and where</p>
+<div class="math notranslate nohighlight">
+\[g_{i}(u, z) = \frac{\alpha(z) N}{k_{i}(u-c_{i})^2} .\]</div>
+<p>Note, at the bottom <span class="math notranslate nohighlight">\(z=z_1\)</span>, <span class="math notranslate nohighlight">\(F(u, z=z1) = \sum_{i} A_{i}\)</span>.
+We assume that the source level of the waves coincide with model’s bottom and
+denote by <span class="math notranslate nohighlight">\(F_{S0} = \sum_{i} A_{i}\)</span> the net source flux.</p>
+<p>To define the wave spectrum we specify the wavenumbers and phase speeds and let
+<span class="math notranslate nohighlight">\(A=A(k,c)\)</span>. By default, the code sums the fluxes over 20 waves with equal
+wavenumbers <span class="math notranslate nohighlight">\(k_i=2\)</span>, and (piecewise) linearly spaced phase speeds</p>
+<div class="math notranslate nohighlight">
+\[c_i = torch.hstack([torch.arange(-100, 0, 10), torch.arange(10, 110, 10)]),\]</div>
+<p>excluding <span class="math notranslate nohighlight">\(c=0\)</span>.</p>
+<p>The amplitude depent on the phase speed as in Eq. (17) of Alexander and
+Dunkerton (1999), centered around <span class="math notranslate nohighlight">\(c=0\)</span>, i.e.:</p>
+<div class="math notranslate nohighlight">
+\[A(c) = \text{sgn}(c) B_m
+\exp\left[- \ln{2} \left(\frac{c}{c_w}\right)^2 \right].\]</div>
+<p>The stochasticity enters by letting the total flux at the source level
+<span class="math notranslate nohighlight">\(F_{S0}\)</span> and spectral width <span class="math notranslate nohighlight">\(c_{w}\)</span> be random variables
+(so <span class="math notranslate nohighlight">\(B_{m}\)</span> in the above equation is chosen accordingly to the drawn
+<span class="math notranslate nohighlight">\(F_{S0}\)</span>). Physically, one can think of convection generating
+waves packets randomly. Following feedback from Joan and
+Martina, more vigorous convection leads also to a broader spectrum, meaning
+<span class="math notranslate nohighlight">\(F_{S0}\)</span> and <span class="math notranslate nohighlight">\(c_{w}\)</span> are positively correlated.
+Therefore, we use a 5-parameter distribution representing their means,
+varainces, and the correlation between the two.
+At each time step two numbers are drawn from a bivariate normal
+distribution. Next those numbers are mapped to a bivariate log-normal
+distribution, from which <span class="math notranslate nohighlight">\(F_{S0}\)</span> and <span class="math notranslate nohighlight">\(c_{w}\)</span> are drawn.
+The reason for mapping to a bivariate log-normal distribution is that we want
+<span class="math notranslate nohighlight">\(F_{S0}\)</span> and <span class="math notranslate nohighlight">\(c_{w}\)</span> to be strictly positive numbers. Fortunately,
+due to the Central Limit Theorem, the particular choice of distribution
+does not matter here because after the sum in
+<a class="reference internal" href="#equation-stochastic-forcing-flux-definition">(2)</a> the total flux will be normalay
+distributed (actually it will be a sum of two Gaussians because there are two
+“species”).</p>
 </div>
 
 
@@ -210,10 +217,17 @@
               
               <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='right-next' id="next-link" href="model-description.html" title="next page">
+    <a class='left-prev' id="prev-link" href="model-description.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Model description</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="numerical-scheme.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Model description</p>
+        <p class="prev-next-title">Numerical scheme</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

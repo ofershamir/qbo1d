@@ -10,11 +10,10 @@ Welcome to qbo1d's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   model-description
+   stochastic-forcing
    numerical-scheme
    code
-..
-   model-setup
-   scenarios
 
 Indices and tables
 ==================

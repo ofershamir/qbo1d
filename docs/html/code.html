@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Code Reference &#8212; qbo1d  documentation</title>
+    <title>Code reference &#8212; qbo1d  documentation</title>
     
     <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -71,6 +71,18 @@
       <div class="navbar-center-item">
         <ul id="navbar-main-elements" class="navbar-nav">
     <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="model-description.html">
+  Model description
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="stochastic-forcing.html">
+  Stochastic forcing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="numerical-scheme.html">
   Numerical scheme
  </a>
@@ -78,7 +90,7 @@
 
 <li class="toctree-l1 current active nav-item">
  <a class="current reference internal nav-link" href="#">
-  Code Reference
+  Code reference
  </a>
 </li>
 
@@ -176,7 +188,7 @@
               <div>
                 
   <div class="section" id="code-reference">
-<h1>Code Reference<a class="headerlink" href="#code-reference" title="Permalink to this headline">¶</a></h1>
+<h1>Code reference<a class="headerlink" href="#code-reference" title="Permalink to this headline">¶</a></h1>
 <p>For the most part, the notations in the code, and in the project in general,
 follow the notations in Holton and Lindzen (1972), with the exception of using
 <span class="math notranslate nohighlight">\(\kappa\)</span> to denote the diffusion coefficient and <span class="math notranslate nohighlight">\(NBV\)</span> to denote the
@@ -349,14 +361,6 @@ default, torch.nn.Module uses the forward method.</p>
 <dt id="qbo1d.stochastic_forcing.WaveSpectrum">
 <em class="property">class </em><code class="sig-prename descclassname">qbo1d.stochastic_forcing.</code><code class="sig-name descname">WaveSpectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">solver</span></em>, <em class="sig-param"><span class="n">sfe</span><span class="o">=</span><span class="default_value">0.0037</span></em>, <em class="sig-param"><span class="n">sfv</span><span class="o">=</span><span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">cwe</span><span class="o">=</span><span class="default_value">32</span></em>, <em class="sig-param"><span class="n">cwv</span><span class="o">=</span><span class="default_value">225</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">0.75</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">197</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qbo1d.stochastic_forcing.WaveSpectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>A ModelClass for setting up the stochastic source term.</p>
-<p>The control source spectrum consists of 20 waves with equal wavenumbers 2
-and equally spaced phase speeds in <span class="math notranslate nohighlight">\([-100, -10]\)</span>, <span class="math notranslate nohighlight">\([10, 100]\)</span>.
-The amplitudes depend on the phase speeds as in (17) of AD99 with
-stochastically varying magnitude (total flux at source level) and spectrum
-width sampled from a 5 parameter distribution (for the means, variances
-, and correlation). Here, the magnitude and width are first drawn from a
-bivariate normal distribution with the specified correlation and then mapped
-to bivariate log-normal distribution with the specified means and variances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -465,6 +469,39 @@ default, torch.nn.Module uses the forward method.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt id="qbo1d.stochastic_forcing.sample_sf_cw">
+<code class="sig-prename descclassname">qbo1d.stochastic_forcing.</code><code class="sig-name descname">sample_sf_cw</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">sfe</span></em>, <em class="sig-param"><span class="n">sfv</span></em>, <em class="sig-param"><span class="n">cwe</span></em>, <em class="sig-param"><span class="n">cwv</span></em>, <em class="sig-param"><span class="n">corr</span></em>, <em class="sig-param"><span class="n">seed</span></em><span class="sig-paren">)</span><a class="headerlink" href="#qbo1d.stochastic_forcing.sample_sf_cw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a squence of source fluxes and spectral widths.</p>
+<p>The control spectrum consists of 20 waves with equal wavenumbers 2
+and equally spaced phase speeds in <span class="math notranslate nohighlight">\([-100, -10]\)</span>, <span class="math notranslate nohighlight">\([10, 100]\)</span>.
+The amplitudes depend on the phase speeds as in (17) of AD99 with
+stochastically varying magnitude (total flux at source level) and spectrum
+width sampled from a 5-parameter distribution (for the means, variances
+, and correlation). Here, the magnitude and width are first drawn from a
+bivariate normal distribution with the specified correlation and then mapped
+to bivariate log-normal distribution with the specified means and variances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Number of realizations</p></li>
+<li><p><strong>sfe</strong> (<em>float</em>) – Total source flux mean</p></li>
+<li><p><strong>sfv</strong> (<em>float</em>) – Total source flux variance</p></li>
+<li><p><strong>cwe</strong> (<em>float</em>) – Spectrum width mean</p></li>
+<li><p><strong>cwv</strong> (<em>float</em>) – Spectrum width variance</p></li>
+<li><p><strong>corr</strong> (<em>float</em>) – Correlation in the underlying normal distribution</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – A seed for the pseudorandom number generator</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Source fluxes, spectral widths</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float, float)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

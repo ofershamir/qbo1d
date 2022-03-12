@@ -1,5 +1,5 @@
 ==============
-Code Reference
+Code reference
 ==============
 
 For the most part, the notations in the code, and in the project in general,
